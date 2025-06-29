@@ -3,12 +3,18 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "setup:infra-only": "docker compose -f docker/docker-compose.infra.yml up",
-    "shutdown:infra-only": "docker compose -f docker/docker-compose.infra.yml down"
+    "setup:infra-only": "docker compose -f docker/docker-compose.infra.yml up -d",
+    "shutdown:infra-only": "docker compose -f docker/docker-compose.infra.yml down",
+    "start:services": "nx run-many -t=serve -p gateway,catalog,order",
+    "start:gateway": "nx serve gateway",
+    "start:catalog": "nx serve catalog",
+    "start:order": "nx serve order",
+    "start:web": "nx dev web"
   },
   "private": true,
   "dependencies": {
     "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
     "axios": "^1.6.0",
