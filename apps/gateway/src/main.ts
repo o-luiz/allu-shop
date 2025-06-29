@@ -5,9 +5,9 @@ import { AppModule } from './app/app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
-  const port = process.env.GATEWAY_PORT || 3000;
+  const port = process.env.GATEWAY_PORT || 3330;
   await app.listen(port);
-  Logger.log(`API gatewat rodando |  http://localhost:${port}/${globalPrefix}`);
+  Logger.log(`API gateway rodando | http://localhost:${port}/api`);
 }
 
 bootstrap();
