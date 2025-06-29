@@ -9,7 +9,8 @@
     "start:gateway": "nx serve gateway",
     "start:catalog": "nx serve catalog",
     "start:order": "nx serve order",
-    "start:web": "nx dev web"
+    "start:web": "nx dev web",
+    "test:all": "nx run-many -t test --all"
   },
   "private": true,
   "dependencies": {
