@@ -17,8 +17,8 @@ export function AlluShopLogo({ size = 'xl' }: AlluShopLogoProps) {
 
   return (
     <div className={`font-bold ${fontSize}`}>
-      <span className="text-green-500">allu</span>
-      <span>shop</span>
+      <span>allu</span>
+      <span className="text-green-500">shop</span>
     </div>
   );
 }
