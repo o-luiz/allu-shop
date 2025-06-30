@@ -15,7 +15,7 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   return (
-    <div className="max-w-7xl    py-4">
+    <div className="max-w-7xl py-4">
       <nav className="text-sm text-gray-600 flex items-center">
         {items.map((breadcrumb, index) => (
           <span key={index} className="flex items-center">
