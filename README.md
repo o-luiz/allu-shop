@@ -15,7 +15,7 @@ Primeiro, inicie os serviços de infraestrutura necessários:
 npm run setup:infra-only
 ```
 
-Para o funcionamento dos serviços é necessário rodar os script de migration
+Para o funcionamento dos serviços é necessário rodar os script de migration.
 
 ```bash
 npm run prisma:generate
