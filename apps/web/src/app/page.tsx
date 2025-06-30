@@ -1,17 +1,17 @@
 'use client';
 
 import { useInfiniteQuery } from '@tanstack/react-query';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 
 import { MainFooter } from '../components/layout/MainFooter';
 import { Navbar } from '../components/layout/Navbar';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { fetchProductsPaginated } from '../services/catalog';
-import { generateSlug, getRandomImagesV2, allImages } from '../utils/misc';
 import { ProductCardSkeleton } from '../components/ui/ProductCardSkeleton';
+import { getProductsForInfiniteQuery } from '../services/getProducts';
+import { generateSlug } from '../utils/misc';
 
 export default function HomePage() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -27,7 +27,9 @@ export default function HomePage() {
     refetch,
   } = useInfiniteQuery({
     queryKey: ['products'],
-    queryFn: ({ pageParam = 1 }) => fetchProductsPaginated(pageParam, 10),
+    queryFn: async ({ pageParam = 1 }) => {
+      return await getProductsForInfiniteQuery(pageParam, 10);
+    },
     getNextPageParam: (lastPage) => {
       return lastPage.hasNextPage ? lastPage.page + 1 : undefined;
     },
@@ -60,11 +62,6 @@ export default function HomePage() {
 
   const allProducts = data?.pages.flatMap((page) => page.data) || [];
   const totalProducts = data?.pages[0]?.total || 0;
-
-  const getProductImage = (productId: number) => {
-    const randomImages = getRandomImagesV2(allImages, 1);
-    return randomImages[0];
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -112,7 +109,7 @@ export default function HomePage() {
                       <CardContent className="p-4 flex-1">
                         <div className=" min-h-[196px] min-w-[222px] max-h-[312px] h-[312px] bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
                           <Image
-                            src={getProductImage(product.id)}
+                            src={product.image}
                             alt={product.name}
                             width={400}
                             height={312}
@@ -130,6 +127,14 @@ export default function HomePage() {
                         </p>
                         <p className="text-green-600 font-bold text-xl  mb-1">
                           R$ {product.price}
+                        </p>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-semibold">Mensal:</span> R${' '}
+                          {product.monthlyPrice}
+                        </p>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-semibold">Anual:</span> R${' '}
+                          {product.yearlyPrice}
                         </p>
                       </CardContent>
                     </Card>
