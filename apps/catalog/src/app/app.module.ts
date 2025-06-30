@@ -1,7 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@allu-shop/database';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
+import { ProductRepository } from './domain/repositories/product.repository';
+
+import { ProductMySqlRepository } from './infrastructure/repositories/product-mysql.repository';
+
+import { GetProductsUseCase } from './application/use-cases/get-products.use-case';
+import { GetProductBySlugUseCase } from './application/use-cases/get-product-by-slug.use-case';
+import { GetProductsAutocompleteUseCase } from './application/use-cases/get-products-autocomplete.use-case';
 
 @Module({
   imports: [
@@ -9,8 +17,17 @@ import { AppService } from './app.service';
       isGlobal: true,
       envFilePath: '../../.env',
     }),
+    DatabaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: ProductRepository,
+      useClass: ProductMySqlRepository,
+    },
+    GetProductsUseCase,
+    GetProductBySlugUseCase,
+    GetProductsAutocompleteUseCase,
+  ],
 })
 export class AppModule {}
