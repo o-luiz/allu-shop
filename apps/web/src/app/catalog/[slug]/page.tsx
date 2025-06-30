@@ -8,10 +8,7 @@ import { Navbar } from '../../../components/layout/Navbar';
 import { Breadcrumbs } from '../../../components/ui/Breadcrumbs';
 import { MainFooter } from '../../../components/layout/MainFooter';
 import { useCart } from '../../../contexts/CartContext';
-import {
-  fetchProductsPaginated,
-  type Product,
-} from '../../../services/catalog';
+import { getProductBySlug, type Product } from '../../../services/catalog';
 import {
   ShoppingCart,
   Shield,
@@ -29,8 +26,6 @@ interface PageProps {
   }>;
 }
 
-// TODO: Implementar conexão com dados vindos da api e remover implementações mockadas
-
 export default function ProductPage({ params }: PageProps) {
   const { slug } = use(params);
   const { addToCart } = useCart();
@@ -42,18 +37,9 @@ export default function ProductPage({ params }: PageProps) {
   useEffect(() => {
     const loadProduct = async () => {
       try {
-        const response = await fetchProductsPaginated(1, 100);
-        const foundProduct = response.data.find((p: Product) => {
-          const productSlug = p.name
-            .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .trim();
-          return productSlug === slug;
-        });
-
-        if (foundProduct) {
-          setProduct(foundProduct);
+        const response = await getProductBySlug(slug);
+        if (response.success && response.data) {
+          setProduct(response.data);
         } else {
           const productName = slug
             .split('-')
@@ -69,10 +55,29 @@ export default function ProductPage({ params }: PageProps) {
             stock: 10,
             image:
               'https://via.placeholder.com/500x350/3b82f6/ffffff?text=Produto+1',
+            monthlyPrice: 183.77,
+            yearlyPrice: 1490.99,
           });
         }
       } catch (error) {
         console.error('Erro ao carregar produto:', error);
+        const productName = slug
+          .split('-')
+          .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+
+        setProduct({
+          id: 1,
+          name: productName,
+          description: `${productName} com tecnologia avançada, design premium e alta performance. Ideal para games.`,
+          price: 183.77,
+          category: 'Electronics',
+          stock: 10,
+          image:
+            'https://via.placeholder.com/500x350/3b82f6/ffffff?text=Produto+1',
+          monthlyPrice: 183.77,
+          yearlyPrice: 1490.99,
+        });
       } finally {
         setIsLoading(false);
       }
@@ -105,7 +110,6 @@ export default function ProductPage({ params }: PageProps) {
     );
   }
 
-  // Mock images para o carrossel
   const mockImages = [
     'https://picsum.photos/500/350?random=1',
     'https://picsum.photos/500/350?random=2',

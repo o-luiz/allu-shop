@@ -6,7 +6,7 @@ import { Search, X, ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from './button';
-import { fetchProducts, Product } from '../../services/catalog';
+import { getProductsAutocomplete, Product } from '../../services/catalog';
 import { generateSlug } from '../../utils/misc';
 
 interface AutoCompleteSearchbarProps {
@@ -21,7 +21,6 @@ export function AutoCompleteSearchbar({
   onProductSelect,
 }: AutoCompleteSearchbarProps) {
   const [query, setQuery] = useState('');
-  const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,22 +33,7 @@ export function AutoCompleteSearchbar({
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetchProducts();
-        setProducts(response.data);
-      } catch (err) {
-        setError('Erro ao carregar produtos');
-        console.error('Error loading products:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadProducts();
-  }, []);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (selectedIndex >= 0 && itemRefs.current[selectedIndex]) {
@@ -201,30 +185,64 @@ export function AutoCompleteSearchbar({
     setSelectedIndex(-1);
   };
 
-  // Remover conteúdo de filtragem do cliente e substituir por busca paginada no back
   useEffect(() => {
-    if (query.trim() === '') {
+    if (query.trim() === '' || query.trim().length < 2) {
       setFilteredProducts([]);
       setIsDropdownOpen(false);
       setSelectedIndex(-1);
+      setError(null);
       return;
     }
 
-    const filtered = products.filter(
-      (product) =>
-        product.name.toLowerCase().includes(query.toLowerCase()) ||
-        product.description.toLowerCase().includes(query.toLowerCase()) ||
-        product.category.toLowerCase().includes(query.toLowerCase())
-    );
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
 
-    setFilteredProducts(filtered.slice(0, 10));
-    setIsDropdownOpen(query.trim().length > 0);
-    setSelectedIndex(-1);
-  }, [query, products]);
+    debounceTimeoutRef.current = setTimeout(async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await getProductsAutocomplete(query.trim(), 10);
+
+        if (response.success) {
+          setFilteredProducts(response.data);
+          setIsDropdownOpen(response.data.length > 0);
+        } else {
+          setFilteredProducts([]);
+          setIsDropdownOpen(false);
+          setError('Erro ao buscar produtos');
+        }
+
+        setSelectedIndex(-1);
+      } catch (err) {
+        setError('Erro ao buscar produtos');
+        setFilteredProducts([]);
+        setIsDropdownOpen(false);
+        console.error('Error searching products:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 300);
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [query]);
 
   useEffect(() => {
     itemRefs.current = itemRefs.current.slice(0, filteredProducts.length);
   }, [filteredProducts]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const truncateDescription = (description: string, maxLength = 50) => {
     return description.length > maxLength
@@ -287,7 +305,10 @@ export function AutoCompleteSearchbar({
         >
           {isLoading ? (
             <div className="p-4 text-center text-gray-500">
-              Carregando produtos...
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                <span>Pesquisando produtos...</span>
+              </div>
             </div>
           ) : error ? (
             <div className="p-4 text-center text-red-500">{error}</div>
@@ -316,7 +337,7 @@ export function AutoCompleteSearchbar({
                 <div className="flex-shrink-0 w-12 h-12 mr-3">
                   <Image
                     src={
-                      // product.image ||
+                      product.image ||
                       `https://picsum.photos/48/48?random=${product.id}`
                     }
                     alt={product.name}
