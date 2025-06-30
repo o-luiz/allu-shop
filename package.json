@@ -10,7 +10,13 @@
     "start:catalog": "nx serve catalog",
     "start:order": "nx serve order",
     "start:web": "nx dev web",
-    "test:all": "nx run-many -t test --all"
+    "test:all": "nx run-many -t test --all",
+    "prisma:generate": "cd libs/database && npx prisma generate",
+    "prisma:migrate": "cd libs/database && npx prisma migrate dev",
+    "prisma:deploy": "cd libs/database && npx prisma migrate deploy",
+    "prisma:studio": "cd libs/database && npx prisma studio",
+    "prisma:reset": "cd libs/database && npx prisma migrate reset",
+    "prisma:seed": "cd libs/database && npx ts-node seed.ts"
   },
   "private": true,
   "dependencies": {

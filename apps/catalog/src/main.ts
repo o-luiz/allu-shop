@@ -9,14 +9,14 @@ async function bootstrap() {
     {
       transport: Transport.TCP,
       options: {
-        port: parseInt(process.env.CATALOG_PORT) || 3001,
+        port: parseInt(process.env.CATALOG_PORT) || 3331,
       },
     }
   );
 
   await app.listen();
   Logger.log(
-    `${`Catalog service rodando na porta ${process.env.CATALOG_PORT || 3001}`}`
+    `Catalog service rodando na porta ${process.env.CATALOG_PORT || 3331}`
   );
 }
 
