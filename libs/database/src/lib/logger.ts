@@ -14,16 +14,15 @@ winston.addColors(colors);
 const developmentFormat = winston.format.combine(
   winston.format.timestamp({ format: 'DD/MM/YYYY HH:mm:ss' }),
   winston.format.colorize({ all: true }),
-  winston.format.printf(
-    ({ timestamp, level, message, service, ...meta }: any) => {
-      const metaString = Object.keys(meta).length
-        ? JSON.stringify(meta, null, 2)
-        : '';
-      return `[${timestamp}] [${
-        service || 'APP'
-      }] ${level}: ${message} ${metaString}`;
-    }
-  )
+  winston.format.printf((info) => {
+    const { timestamp, level, message, service, ...meta } = info;
+    const metaString = Object.keys(meta).length
+      ? JSON.stringify(meta, null, 2)
+      : '';
+    return `[${timestamp}] [${
+      service || 'APP'
+    }] ${level}: ${message} ${metaString}`;
+  })
 );
 
 const productionFormat = winston.format.combine(
