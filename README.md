@@ -2,7 +2,7 @@
 
 ## Aviso
 
-- O pipeline de pipeline não fez todo o merge pois está com um problema por questão de dependência (prisma orm) que mantem alguns arquivos de tipagem na node_modules, quebrando assim alguns testes e build individual de alguns módulo e libs.
+- O pipeline de CI/CD não fez todo o merge pois está com um problema por questão de dependência (prisma orm) que mantem alguns arquivos de tipagem na node_modules, quebrando assim alguns testes e build individual de alguns módulo e libs.
 - Para contornar essa questão favor utilizar a branch `dev` que está com o código mais atualizado
 
 ## Requisitos
