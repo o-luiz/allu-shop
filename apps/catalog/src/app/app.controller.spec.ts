@@ -14,7 +14,7 @@ describe('AppController', () => {
 
   describe('getData', () => {
     it.skip('should return "Hello API"', () => {
-      const appController = app.get<AppController>(AppController);
+      // const appController = app.get<AppController>(AppController);
       // expect(appController.getData()).toEqual({ message: 'Hello API' });
     });
   });
