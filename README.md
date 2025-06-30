@@ -15,6 +15,14 @@ Primeiro, inicie os serviços de infraestrutura necessários:
 npm run setup:infra-only
 ```
 
+Para o funcionamento dos serviços é necessário rodar os script de migration
+
+```bash
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed
+```
+
 ### 2. Iniciar os microserviços
 
 Para iniciar todos os serviços backend (gateway, catalog e order):
