@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 
 import { MainFooter } from '../components/layout/MainFooter';
@@ -9,7 +10,8 @@ import { Navbar } from '../components/layout/Navbar';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { fetchProductsPaginated } from '../services/catalog';
-import { generateSlug } from '../utils/misc';
+import { generateSlug, getRandomImagesV2, allImages } from '../utils/misc';
+import { ProductCardSkeleton } from '../components/ui/ProductCardSkeleton';
 
 export default function HomePage() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -59,6 +61,11 @@ export default function HomePage() {
   const allProducts = data?.pages.flatMap((page) => page.data) || [];
   const totalProducts = data?.pages[0]?.total || 0;
 
+  const getProductImage = (productId: number) => {
+    const randomImages = getRandomImagesV2(allImages, 1);
+    return randomImages[0];
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -68,14 +75,17 @@ export default function HomePage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-semibold text-gray-900">
               Todos os produtos
-              <span className="text-gray-500 ml-1">({totalProducts})</span>
+              {!isLoading && (
+                <span className="text-gray-500 ml-1">({totalProducts})</span>
+              )}
             </h2>
           </div>
 
           {isLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Carregando produtos...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <ProductCardSkeleton key={index} />
+              ))}
             </div>
           ) : isError ? (
             <div className="text-center py-12">
@@ -98,39 +108,42 @@ export default function HomePage() {
                     href={`/catalog/${generateSlug(product)}`}
                     className="block"
                   >
-                    <Card className="border-gray-300 shadow-sm hover:shadow-lg transition-shadow duration-200 rounded-sm flex flex-col h-full cursor-pointer">
+                    <Card className="border-gray-300 shadow-sm hover:shadow-xl transition-shadow duration-200 rounded-sm flex flex-col h-full cursor-pointer">
                       <CardContent className="p-4 flex-1">
-                        <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                          <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-green-700 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-semibold text-sm">
-                              {product.name.split(' ')[0]}
-                            </span>
-                          </div>
+                        <div className=" min-h-[196px] min-w-[222px] max-h-[312px] h-[312px] bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                          <Image
+                            src={getProductImage(product.id)}
+                            alt={product.name}
+                            width={400}
+                            height={312}
+                            className="w-full h-full object-contain rounded-lg"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            placeholder="blur"
+                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                          />
                         </div>
                         <h3 className="font-semibold text-gray-900 mb-2 text-base">
                           {product.name}
                         </h3>
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[2.5rem]">
+                        <p className="text-sm text-gray-600  line-clamp-2 min-h-[2.5rem]">
                           {product.description}
                         </p>
-                        <p className="text-green-600 font-bold text-xl mb-3">
-                          {product.price}
+                        <p className="text-green-600 font-bold text-xl  mb-1">
+                          R$ {product.price}
                         </p>
                       </CardContent>
                     </Card>
                   </Link>
                 ))}
+
+                {isFetchingNextPage &&
+                  Array.from({ length: 6 }).map((_, index) => (
+                    <ProductCardSkeleton key={`loading-${index}`} />
+                  ))}
               </div>
 
               <div ref={loadMoreRef} className="py-8">
-                {isFetchingNextPage ? (
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto" />
-                    <p className="mt-2 text-gray-600">
-                      Carregando mais produtos...
-                    </p>
-                  </div>
-                ) : hasNextPage ? (
+                {!isFetchingNextPage && hasNextPage ? (
                   <div className="text-center">
                     <Button
                       onClick={() => fetchNextPage()}
@@ -139,7 +152,7 @@ export default function HomePage() {
                       Carregar mais produtos
                     </Button>
                   </div>
-                ) : allProducts.length > 0 ? (
+                ) : !hasNextPage && allProducts.length > 0 ? (
                   <div className="text-center text-gray-500">
                     <p>Todos os produtos foram carregados</p>
                   </div>
