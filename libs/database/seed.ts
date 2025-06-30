@@ -13,7 +13,7 @@ const ProductsMock = [
     title: 'Architect Extensible Relationships',
     description: 'Cup market nation room act state.',
     image:
-      'https://v2-allugator-images.s3.amazonaws.com/products/Acer+Nitro+5+3050+2.jpeg',
+      'https://yacare-products-image.s3.sa-east-1.amazonaws.com/new-site/IPHONE+14+PRO/iPhone+14+Pro+-+4.jpg',
     monthlyPrice: 340.38,
     yearlyPrice: 1162.09,
     price: 340.38,
@@ -53,7 +53,7 @@ const ProductsMock = [
     title: 'Implement Wireless Relationships',
     description: 'True my administration road bring father reflect.',
     image:
-      'https://v2-allugator-images.s3.amazonaws.com/products/Acer+Nitro+5+3050+5.jpeg',
+      'https://yacare-products-image.s3.sa-east-1.amazonaws.com/new-site/IPHONE+14+PRO/iPhone+14+Pro+-+4.jpg',
     monthlyPrice: 266.61,
     yearlyPrice: 2545.26,
     price: 266.61,
@@ -63,7 +63,7 @@ const ProductsMock = [
     title: 'Utilize Bricks-And-Clicks Web Services',
     description: 'Call finish in agency feeling better.',
     image:
-      'https://v2-allugator-images.s3.amazonaws.com/products/Acer+Nitro+5+3050+6.jpeg',
+      'https://yacare-products-image.s3.sa-east-1.amazonaws.com/new-site/IPHONE+14+PRO/iPhone+14+Pro+-+4.jpg',
     monthlyPrice: 366.03,
     yearlyPrice: 874.29,
     price: 366.03,
@@ -626,6 +626,6 @@ async function main() {
 }
 
 main().catch((e) => {
-  logger.error('❌ Falha no seed:', { error: e });
+  logger.error('Falha no seed:', { error: e });
   process.exit(1);
 });
