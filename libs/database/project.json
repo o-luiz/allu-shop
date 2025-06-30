@@ -15,6 +15,11 @@
         "main": "libs/database/src/index.ts",
         "assets": ["libs/database/*.md"]
       }
+    },
+    "test": {
+      "options": {
+        "passWithNoTests": true
+      }
     }
   }
 }
